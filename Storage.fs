@@ -7,7 +7,7 @@ module Storage =
   [<Literal>]
   let MinimumTermCount = 20
 
-  let private dataDir = Path.Combine(AppContext.BaseDirectory, "Data")
+  let private dataDir = Path.Combine(Directory.GetCurrentDirectory(), "Data")
   let termsPath = Path.Combine(dataDir, "terms.tsv")
   let rankingsPath = Path.Combine(dataDir, "rankings.tsv")
 
