@@ -1,0 +1,124 @@
+namespace TermShower
+
+open System
+
+module ConsoleUi =
+  let private safeSetCursor x y =
+    if x >= 0 && y >= 0 && x < Console.BufferWidth && y < Console.BufferHeight then
+      Console.SetCursorPosition(x, y)
+
+  let private writeAt x y (text: string) =
+    safeSetCursor x y
+    let room = max 0 (Console.BufferWidth - x)
+    let s = if text.Length > room then text.Substring(0, room) else text
+    Console.Write s
+
+  let pause () =
+    Console.WriteLine()
+    Console.Write "Press any key to continue..."
+    Console.ReadKey(true) |> ignore
+
+  let clear () = Console.Clear()
+
+  let private colorOfKind = function
+    | Normal -> ConsoleColor.White
+    | Heal -> ConsoleColor.Green
+    | Transform -> ConsoleColor.Red
+    | Blink -> ConsoleColor.Gray
+    | Fast -> ConsoleColor.Magenta
+    | Bonus -> ConsoleColor.Yellow
+    | Clear -> ConsoleColor.Cyan
+
+  let private labelOfKind = function
+    | Normal -> ""
+    | Heal -> "[H] "
+    | Transform -> "[T] "
+    | Blink -> "[B] "
+    | Fast -> "[F] "
+    | Bonus -> "[$] "
+    | Clear -> "[C] "
+
+  let readMenu (title: string) (items: string list) =
+    Console.CursorVisible <- false
+    let rec loop selected =
+      clear ()
+      Console.ForegroundColor <- ConsoleColor.White
+      Console.WriteLine title
+      Console.WriteLine(String.replicate title.Length "=")
+      Console.WriteLine()
+      items
+      |> List.iteri (fun i item ->
+        if i = selected then
+          Console.ForegroundColor <- ConsoleColor.Yellow
+          Console.WriteLine($"> {item}")
+        else
+          Console.ForegroundColor <- ConsoleColor.Gray
+          Console.WriteLine($"  {item}"))
+      Console.ForegroundColor <- ConsoleColor.White
+      match Console.ReadKey(true).Key with
+      | ConsoleKey.UpArrow -> loop ((selected + List.length items - 1) % List.length items)
+      | ConsoleKey.DownArrow -> loop ((selected + 1) % List.length items)
+      | ConsoleKey.Enter -> selected
+      | _ -> loop selected
+    loop 0
+
+  let showHowToPlay () =
+    clear ()
+    Console.ForegroundColor <- ConsoleColor.White
+    Console.WriteLine "How to Play"
+    Console.WriteLine "==========="
+    Console.WriteLine "Type a visible term exactly and press Enter. Uppercase and lowercase are different."
+    Console.WriteLine "Incorrect input does not reduce health. Health decreases only when a term reaches the bottom."
+    Console.WriteLine "Special terms: [H] heal, [T] transform, [B] blink, [F] fast, [$] bonus, [C] clear."
+    Console.WriteLine "During gameplay, press Esc to quit the current game."
+    pause ()
+
+  let showRankings (rankings: RankingEntry list) =
+    clear ()
+    Console.ForegroundColor <- ConsoleColor.White
+    Console.WriteLine "Ranking"
+    Console.WriteLine "======="
+    match Ranking.top5 rankings with
+    | [] -> Console.WriteLine "No ranking data yet."
+    | xs ->
+      xs
+      |> List.iteri (fun i r ->
+        Console.WriteLine($"{i + 1}. {r.Nickname}  Score: {r.Score}  Correct: {r.CorrectTyped}"))
+    pause ()
+
+  let drawGame (state: GameState) (inputBuffer: string) =
+    Console.CursorVisible <- false
+    clear ()
+    let width = Console.WindowWidth
+    let height = Console.WindowHeight
+    let rightStart = max 50 (width * 2 / 3)
+    let gameBottom = height - 4
+
+    Console.ForegroundColor <- ConsoleColor.White
+    writeAt 0 0 $"Stage: {state.Stage}   HP: {state.Health}/5   Score: {state.Score}"
+    writeAt 0 1 (String.replicate (min (width - 1) (rightStart - 2)) "-")
+    writeAt rightStart 0 "Meaning"
+    writeAt rightStart 1 "-------"
+
+    match state.LastMeaning with
+    | None -> writeAt rightStart 3 "Type a term to see its meaning."
+    | Some t ->
+      writeAt rightStart 3 t.Term
+      let meaning = if t.Meaning.Length > width - rightStart - 1 then t.Meaning.Substring(0, width - rightStart - 4) + "..." else t.Meaning
+      writeAt rightStart 4 meaning
+
+    let blinkVisible = DateTime.Now.Millisecond < 500
+    state.FallingTerms
+    |> List.iter (fun ft ->
+      if ft.Y > 1 && ft.Y < gameBottom then
+        let shown =
+          match ft.Kind with
+          | Blink when not blinkVisible -> labelOfKind ft.Kind + "????"
+          | _ -> labelOfKind ft.Kind + ft.Entry.Term
+        Console.ForegroundColor <- colorOfKind ft.Kind
+        writeAt ft.X ft.Y shown)
+
+    Console.ForegroundColor <- ConsoleColor.White
+    writeAt 0 (height - 3) (String.replicate (width - 1) "-")
+    writeAt 0 (height - 2) $"Input: {inputBuffer}"
+    writeAt 0 (height - 1) "Enter: submit    Backspace: delete    Esc: quit"
