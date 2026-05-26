@@ -22,3 +22,12 @@ immutable	한 번 만들어진 뒤에는 값이 바뀌지 않는 성질.
 mutable	저장된 값을 나중에 바꿀 수 있는 위치나 변수.
 pipeline	|> 연산자를 사용해 값을 여러 함수에 차례로 전달하는 방식.
 active-pattern	match 표현식에서 사용할 수 있도록 직접 정의하는 사용자 지정 패턴.
+expression	평가되어 값을 만들어내는 프로그램 조각
+type	값의 종류를 나타내며 잘못된 연산을 막아주는 분류
+binding	이름과 값을 연결하는 것
+shadowing	안쪽 범위의 이름이 바깥쪽 이름을 가리는 현상
+scope	이름이 유효하게 사용될 수 있는 코드 영역
+tail-recursion	재귀 호출이 함수의 마지막 연산으로 수행되는 재귀
+discriminated-union	여러 가지 경우 중 하나를 표현할 수 있는 F# 타입
+encapsulation	내부 상태를 숨기고 정해진 기능만 외부에 제공하는 방식
+higher-order-function	함수를 인자로 받거나 함수 결과를 반환하는 함수
