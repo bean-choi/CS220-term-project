@@ -53,11 +53,19 @@ module Game =
   let private scoreFor (state: GameState) (ft: FallingTerm) =
     Stage.baseScore state.Stage * ft.ScoreMultiplier
 
+  let private findTopmostMatchingTerm (text: string) (fallingTerms: FallingTerm list) : FallingTerm option =
+    fallingTerms
+    |> List.filter (fun ft -> ft.Entry.Term = text)
+    |> List.sortBy (fun ft -> ft.Y, ft.Id)
+    |> List.tryHead
+
   let private handleSubmit (rng: Random) (terms: TermEntry list) (input: string) (state: GameState) =
     let text = input.Trim()
     if text = "" then state
     else
-      match state.FallingTerms |> List.tryFind (fun ft -> ft.Entry.Term = text) with
+      let matched: FallingTerm option =
+        findTopmostMatchingTerm text state.FallingTerms
+      match matched with
       | None -> state
       | Some ft ->
         match ft.Kind with

@@ -13,6 +13,21 @@ module ConsoleUi =
     let s = if text.Length > room then text.Substring(0, room) else text
     Console.Write s
 
+  let private wrapText (width: int) (text: string) : string list =
+    if width <= 0 then []
+    else
+      let rec loop acc (rest: string) =
+        if String.IsNullOrEmpty rest then
+          List.rev acc
+        elif rest.Length <= width then
+          List.rev (rest :: acc)
+        else
+          let line = rest.Substring(0, width)
+          let remain = rest.Substring(width)
+          loop (line :: acc) remain
+
+      loop [] text
+
   let pause () =
     Console.WriteLine()
     Console.Write "Press any key to continue..."
@@ -100,12 +115,18 @@ module ConsoleUi =
     writeAt rightStart 0 "Meaning"
     writeAt rightStart 1 "-------"
 
+    let panelWidth = width - rightStart - 1
+
     match state.LastMeaning with
-    | None -> writeAt rightStart 3 "Type a term to see its meaning."
+    | None ->
+      wrapText panelWidth "Type a term to see its meaning."
+      |> List.iteri (fun i line ->
+        writeAt rightStart (3 + i) line)
     | Some t ->
       writeAt rightStart 3 t.Term
-      let meaning = if t.Meaning.Length > width - rightStart - 1 then t.Meaning.Substring(0, width - rightStart - 4) + "..." else t.Meaning
-      writeAt rightStart 4 meaning
+      wrapText panelWidth t.Meaning
+      |> List.iteri (fun i line ->
+        writeAt rightStart (4 + i) line)
 
     let blinkVisible = DateTime.Now.Millisecond < 500
     state.FallingTerms

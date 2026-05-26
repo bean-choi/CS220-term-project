@@ -11,4 +11,6 @@ module Ranking =
     List.length current < 5 || current |> List.exists (fun (r: RankingEntry) -> score > r.Score)
 
   let add (entry: RankingEntry) (rankings: RankingEntry list) =
-    entry :: rankings |> top5
+    entry :: rankings
+    |> List.sortByDescending (fun r -> r.Score, r.CorrectTyped)
+    |> List.truncate 5
