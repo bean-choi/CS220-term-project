@@ -1,24 +1,26 @@
-recursion	A function calls itself to solve a smaller version of a problem.
+active-pattern	A custom pattern used inside match expressions.
+async	A computation that can run independently from the main flow.
 closure	A function value that remembers variables from its lexical scope.
-pattern-matching	A concise way to branch by the shape of data.
-module	A group of related types, values, and functions.
-namespace	A named scope used to organize code and avoid name collisions.
-higher-order	A function that takes or returns another function.
-fold	A function that accumulates a result by visiting elements.
-map	A function that transforms every element in a collection.
 filter	A function that keeps only elements satisfying a predicate.
+fold	A function that accumulates a result by visiting elements.
+function	입력을 받아 결과를 계산하는 프로그램 구성 요소
+higher-order	A function that takes or returns another function.
+immutable	A value that cannot be changed after creation.
+interface	A contract describing members that a type must implement.
+lazy	A computation delayed until its value is needed.
 list	A finite sequence of values.
+map	A function that transforms every element in a collection.
+module	A group of related types, values, and functions.
+monad	A pattern for composing context-sensitive computations.
+mutable	A location whose stored value can be changed.
+namespace	A named scope used to organize code and avoid name collisions.
 option	A type representing Some value or None.
+pattern-matching	A concise way to branch by the shape of data.
+pipeline	Using |> to pass a value through functions.
+polymorphism	Using one interface for values of different types.
 record	A data type with named fields.
+recursion	A function calls itself to solve a smaller version of a problem.
+sequence	A stream-like collection evaluated on demand.
 tuple	A fixed-size grouping of values.
 union	A type with several possible cases.
-interface	A contract describing members that a type must implement.
-polymorphism	Using one interface for values of different types.
-lazy	A computation delayed until its value is needed.
-sequence	A stream-like collection evaluated on demand.
-async	A computation that can run independently from the main flow.
-monad	A pattern for composing context-sensitive computations.
-immutable	A value that cannot be changed after creation.
-mutable	A location whose stored value can be changed.
-pipeline	Using |> to pass a value through functions.
-active-pattern	A custom pattern used inside match expressions.
+value	평가가 끝난 결과로 더 이상 계산할 필요가 없는 데이터

@@ -15,30 +15,30 @@ module Storage =
     s.Replace("\t", " ").Replace("\r", " ").Replace("\n", " ").Trim()
 
   let defaultTerms : TermEntry list =
-    [ { Term = "recursion"; Meaning = "A function calls itself to solve a smaller version of a problem." }
-      { Term = "closure"; Meaning = "A function value that remembers variables from its lexical scope." }
-      { Term = "pattern-matching"; Meaning = "A concise way to branch by the shape of data." }
-      { Term = "module"; Meaning = "A group of related types, values, and functions." }
-      { Term = "namespace"; Meaning = "A named scope used to organize code and avoid name collisions." }
-      { Term = "higher-order"; Meaning = "A function that takes or returns another function." }
-      { Term = "fold"; Meaning = "A function that accumulates a result by visiting elements." }
-      { Term = "map"; Meaning = "A function that transforms every element in a collection." }
-      { Term = "filter"; Meaning = "A function that keeps only elements satisfying a predicate." }
-      { Term = "list"; Meaning = "A finite sequence of values." }
-      { Term = "option"; Meaning = "A type representing Some value or None." }
-      { Term = "record"; Meaning = "A data type with named fields." }
-      { Term = "tuple"; Meaning = "A fixed-size grouping of values." }
-      { Term = "union"; Meaning = "A type with several possible cases." }
-      { Term = "interface"; Meaning = "A contract describing members that a type must implement." }
-      { Term = "polymorphism"; Meaning = "Using one interface for values of different types." }
-      { Term = "lazy"; Meaning = "A computation delayed until its value is needed." }
-      { Term = "sequence"; Meaning = "A stream-like collection evaluated on demand." }
-      { Term = "async"; Meaning = "A computation that can run independently from the main flow." }
-      { Term = "monad"; Meaning = "A pattern for composing context-sensitive computations." }
-      { Term = "immutable"; Meaning = "A value that cannot be changed after creation." }
-      { Term = "mutable"; Meaning = "A location whose stored value can be changed." }
-      { Term = "pipeline"; Meaning = "Using |> to pass a value through functions." }
-      { Term = "active-pattern"; Meaning = "A custom pattern used inside match expressions." } ]
+    [ { Term = "recursion"; Meaning = "함수가 자기 자신을 호출하여 더 작은 문제를 해결하는 방식." }
+      { Term = "closure"; Meaning = "함수와 그 함수가 정의될 때의 lexical scope에 있던 변수들이 함께 저장된 값." }
+      { Term = "pattern-matching"; Meaning = "데이터의 형태에 따라 경우를 나누어 처리하는 간결한 방식." }
+      { Term = "module"; Meaning = "관련된 타입, 값, 함수들을 하나로 묶은 코드 단위." }
+      { Term = "namespace"; Meaning = "코드를 정리하고 이름 충돌을 피하기 위해 사용하는 이름 공간." }
+      { Term = "higher-order"; Meaning = "함수를 인자로 받거나 함수를 결과로 반환하는 함수." }
+      { Term = "fold"; Meaning = "컬렉션의 원소를 차례로 방문하면서 누적 결과를 만드는 함수." }
+      { Term = "map"; Meaning = "컬렉션의 모든 원소에 함수를 적용하여 새 컬렉션을 만드는 함수." }
+      { Term = "filter"; Meaning = "조건을 만족하는 원소만 남기는 함수." }
+      { Term = "list"; Meaning = "값들이 순서대로 연결된 유한한 시퀀스." }
+      { Term = "option"; Meaning = "값이 있는 경우 Some, 없는 경우 None으로 표현하는 타입." }
+      { Term = "record"; Meaning = "이름이 붙은 여러 필드를 묶어서 표현하는 데이터 타입." }
+      { Term = "tuple"; Meaning = "정해진 개수의 값을 순서대로 묶은 데이터 구조." }
+      { Term = "union"; Meaning = "여러 가능한 case 중 하나의 값을 가질 수 있는 타입." }
+      { Term = "interface"; Meaning = "어떤 타입이 구현해야 하는 멤버들의 형식을 정한 약속." }
+      { Term = "polymorphism"; Meaning = "하나의 인터페이스로 여러 타입의 값을 다룰 수 있는 성질." }
+      { Term = "lazy"; Meaning = "값이 실제로 필요할 때까지 계산을 미루는 방식." }
+      { Term = "sequence"; Meaning = "필요한 원소를 그때그때 계산하는 지연 컬렉션." }
+      { Term = "async"; Meaning = "메인 흐름과 독립적으로 실행될 수 있는 비동기 계산." }
+      { Term = "monad"; Meaning = "특정 계산 문맥 안에서 계산들을 연결하기 위한 패턴." }
+      { Term = "immutable"; Meaning = "한 번 만들어진 뒤에는 값이 바뀌지 않는 성질." }
+      { Term = "mutable"; Meaning = "저장된 값을 나중에 바꿀 수 있는 위치나 변수." }
+      { Term = "pipeline"; Meaning = "|> 연산자를 사용해 값을 여러 함수에 차례로 전달하는 방식." }
+      { Term = "active-pattern"; Meaning = "match 표현식에서 사용할 수 있도록 직접 정의하는 사용자 지정 패턴." } ]
 
   let ensureDataFiles () =
     Directory.CreateDirectory(dataDir) |> ignore

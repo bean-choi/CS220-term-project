@@ -7,11 +7,51 @@ module ConsoleUi =
     if x >= 0 && y >= 0 && x < Console.BufferWidth && y < Console.BufferHeight then
       Console.SetCursorPosition(x, y)
 
+  let private charWidth (c: char) =
+    if int c <= 127 then 1 else 2
+
+  let private displayWidth (text: string) =
+    text |> Seq.sumBy charWidth
+
+  let private takeByDisplayWidth (maxWidth: int) (text: string) =
+    let rec loop acc width idx =
+      if idx >= text.Length then
+        acc |> List.rev |> Array.ofList |> String
+      else
+        let c = text.[idx]
+        let w = charWidth c
+        if width + w > maxWidth then
+          acc |> List.rev |> Array.ofList |> String
+        else
+          loop (c :: acc) (width + w) (idx + 1)
+
+    if maxWidth <= 0 then "" else loop [] 0 0
+  
   let private writeAt x y (text: string) =
     safeSetCursor x y
-    let room = max 0 (Console.BufferWidth - x)
-    let s = if text.Length > room then text.Substring(0, room) else text
+    let room = max 0 (Console.WindowWidth - x - 1)
+    let s = takeByDisplayWidth room text
     Console.Write s
+  
+  let private wrapTextByDisplayWidth (width: int) (text: string) : string list =
+    if width <= 0 then []
+    else
+      let rec loop acc current currentWidth idx =
+        if idx >= text.Length then
+          let line = current |> List.rev |> Array.ofList |> String
+          if line = "" then List.rev acc
+          else List.rev (line :: acc)
+        else
+          let c = text.[idx]
+          let w = charWidth c
+
+          if currentWidth + w > width then
+            let line = current |> List.rev |> Array.ofList |> String
+            loop (line :: acc) [ c ] w (idx + 1)
+          else
+            loop acc (c :: current) (currentWidth + w) (idx + 1)
+
+      loop [] [] 0 0
 
   let private wrapText (width: int) (text: string) : string list =
     if width <= 0 then []
@@ -117,14 +157,19 @@ module ConsoleUi =
 
     let panelWidth = width - rightStart - 1
 
+    let panelWidth = max 1 (width - rightStart - 2)
+
     match state.LastMeaning with
     | None ->
-      wrapText panelWidth "Type a term to see its meaning."
+      wrapTextByDisplayWidth panelWidth "Type a term to see its meaning."
       |> List.iteri (fun i line ->
         writeAt rightStart (3 + i) line)
+
     | Some t ->
       writeAt rightStart 3 t.Term
-      wrapText panelWidth t.Meaning
+
+      wrapTextByDisplayWidth panelWidth t.Meaning
+      |> List.truncate (max 1 (height - 8))
       |> List.iteri (fun i line ->
         writeAt rightStart (4 + i) line)
 

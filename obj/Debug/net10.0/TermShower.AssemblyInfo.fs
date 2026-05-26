@@ -10,7 +10,7 @@ open System.Reflection
 [<assembly: System.Reflection.AssemblyCompanyAttribute("TermShower")>]
 [<assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")>]
 [<assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")>]
-[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+110f22ce67e6c8730c88f0cfed8368d4915a5874")>]
+[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+77a070bc7f63b12dd85045f4ce893b3abdcb4237")>]
 [<assembly: System.Reflection.AssemblyProductAttribute("TermShower")>]
 [<assembly: System.Reflection.AssemblyTitleAttribute("TermShower")>]
 [<assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")>]
