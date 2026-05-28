@@ -5,6 +5,7 @@ open TermShower
 
 [<EntryPoint>]
 let main _ =
+  ConsoleUi.configureTerminal ()
   Storage.ensureDataFiles ()
   let rec loop terms =
     let items = [ "Start Game"; "How to Play"; "Ranking"; "Edit Terms"; "Exit" ]
