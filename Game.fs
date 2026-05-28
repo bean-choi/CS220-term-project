@@ -21,15 +21,13 @@ module Game =
   let private shownLength (ft: FallingTerm) =
     labelLengthOfKind ft.Kind + ft.Entry.Term.Length
 
-  let private overlaps x len otherX otherLen =
-    let leftA = x
-    let rightA = x + len - 1
-    let leftB = otherX
-    let rightB = otherX + otherLen - 1
-
-    not (rightA + 1 < leftB || rightB + 1 < leftA)
-
   let private hasOverlap x len (others: FallingTerm list) =
+    let overlaps x len otherX otherLen =
+      let leftA = x
+      let rightA = x + len - 1
+      let leftB = otherX
+      let rightB = otherX + otherLen - 1
+      not (rightA + 2 < leftB || rightB + 2 < leftA)
     others
     |> List.exists (fun ft -> overlaps x len ft.X (shownLength ft))
   
