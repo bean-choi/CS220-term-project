@@ -9,17 +9,17 @@ module Stage =
     let elapsed = DateTime.Now - startedAt
     1 + int (elapsed.TotalMilliseconds / stageEvery.TotalMilliseconds)
 
-  let baseScore stage = 10 + (stage - 1) * 3
+  let baseScore stage = (stage - 1) * 3
 
   let fallIntervalMs stage kind =
-    let baseInterval = max 120 (650 - (stage - 1) * 35)
+    let baseInterval = max 200 (1000 - (stage - 1) * 20)
     match kind with
-    | Fast -> max 70 (baseInterval / 2)
+    | Fast -> max 100 (baseInterval / 2)
     | _ -> baseInterval
 
   let spawnIntervalRangeMs stage =
-    let minInterval = max 450 (1800 - (stage - 1) * 90)
-    let maxInterval = max 900 (3200 - (stage - 1) * 130)
+    let minInterval = max 500 (2500 - (stage - 1) * 90)
+    let maxInterval = max 1500 (4000 - (stage - 1) * 150)
     minInterval, maxInterval
 
   let nextSpawnTime (rng: Random) stage =
@@ -27,8 +27,8 @@ module Stage =
     DateTime.Now.AddMilliseconds(float (rng.Next(minMs, maxMs + 1)))
 
   let spawnCount (rng: Random) stage =
-    let p2 = min 45 (8 + stage * 3)
-    let p3 = min 20 (stage)
+    let p2 = min 30 (5 + stage * 2)
+    let p3 = min 10 (stage / 2)
     let roll = rng.Next(100)
     if roll < p3 then 3
     elif roll < p3 + p2 then 2

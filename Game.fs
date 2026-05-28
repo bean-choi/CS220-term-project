@@ -95,7 +95,7 @@ module Game =
     { state with Health = state.Health - List.length fallen; FallingTerms = alive }
 
   let private scoreFor (state: GameState) (ft: FallingTerm) =
-    Stage.baseScore state.Stage * ft.ScoreMultiplier
+    ((Stage.baseScore state.Stage) + (String.length ft.Entry.Term)) * ft.ScoreMultiplier
 
   let private findLowestMatchingTerm (text: string) (fallingTerms: FallingTerm list) : FallingTerm option =
     fallingTerms
@@ -174,6 +174,11 @@ module Game =
     ConsoleUi.pause ()
 
   let run (terms: TermEntry list) =
+    ConsoleUi.configureTerminal ()
+
+    if not (ConsoleUi.isTerminalSizeEnough ()) then
+      ConsoleUi.showTerminalSizeWarning ()
+    
     let rng = Random()
     let started = DateTime.Now
     let mutable state =
