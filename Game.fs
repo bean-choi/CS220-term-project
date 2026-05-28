@@ -33,6 +33,19 @@ module Game =
     others
     |> List.exists (fun ft -> overlaps x len ft.X (shownLength ft))
   
+  let private spawnClear (rng: Random) (terms: TermEntry list) (width: int) (nextId: int) =
+    let entry = randomEntry rng terms
+    let labelLength = 4
+    let maxX = max 1 (min 48 width - entry.Term.Length - labelLength - 1)
+
+    { Id = nextId
+      Entry = entry
+      X = rng.Next(0, maxX)
+      Y = 2
+      Kind = Clear
+      ScoreMultiplier = Stage.scoreMultiplier Clear
+      LastMove = DateTime.Now }
+  
   let private spawnOne
     (rng: Random)
     (terms: TermEntry list)
@@ -210,8 +223,20 @@ module Game =
         | _ ->
           if not (Char.IsControl key.KeyChar) then input <- input + string key.KeyChar
 
-      state <- { state with Stage = Stage.currentStage state.StartedAt }
+      let oldStage = state.Stage
+      let newStage = Stage.currentStage state.StartedAt
+
+      state <- { state with Stage = newStage }
+
+      if Stage.shouldSpawnClear oldStage newStage then
+        let clearTerm = spawnClear rng terms width state.NextId
+        state <-
+          { state with
+              FallingTerms = clearTerm :: state.FallingTerms
+              NextId = state.NextId + 1 }
+
       state <- moveTerms bottom state
+
       if DateTime.Now >= state.NextSpawnAt then
         state <- spawnTerms rng terms width state
 

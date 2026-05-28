@@ -43,7 +43,6 @@ module Stage =
       let candidates =
         [ Heal, beneficialWeight
           Bonus, beneficialWeight
-          Clear, 1
           Transform, harmfulWeight
           Blink, harmfulWeight
           Fast, harmfulWeight ]
@@ -55,6 +54,9 @@ module Stage =
           let next = acc + weight
           if roll < next then kind else pick next tl
       pick 0 candidates
+
+  let shouldSpawnClear oldStage newStage =
+    oldStage <> newStage && newStage % 3 = 0
 
   let scoreMultiplier = function
     | Normal -> 1
