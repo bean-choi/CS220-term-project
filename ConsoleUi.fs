@@ -3,6 +3,30 @@ namespace TermShower
 open System
 
 module ConsoleUi =
+
+  let configureTerminal () =
+    Console.OutputEncoding <- System.Text.Encoding.UTF8
+    Console.InputEncoding <- System.Text.Encoding.UTF8
+    Console.CursorVisible <- false
+
+    let targetWidth = 100
+    let targetHeight = 30
+
+    try
+      if OperatingSystem.IsWindows() then
+        Console.SetBufferSize(targetWidth, targetHeight)
+        Console.SetWindowSize(targetWidth, targetHeight)
+      else
+        // macOS/Linux에서는 SetWindowSize가 지원되지 않거나 무시될 수 있음.
+        // ANSI escape sequence로 터미널 크기 변경을 요청함.
+        Console.Write($"\u001b[8;{targetHeight};{targetWidth}t")
+    with
+    | _ ->
+      ()
+    
+  let isTerminalSizeEnough () =
+    Console.WindowWidth = 100 && Console.WindowHeight = 30
+  
   let private safeSetCursor x y =
     if x >= 0 && y >= 0 && x < Console.BufferWidth && y < Console.BufferHeight then
       Console.SetCursorPosition(x, y)
@@ -74,6 +98,15 @@ module ConsoleUi =
     Console.ReadKey(true) |> ignore
 
   let clear () = Console.Clear()
+
+  let showTerminalSizeWarning () =
+    clear ()
+    Console.ForegroundColor <- ConsoleColor.White
+    Console.WriteLine "Terminal size is too small."
+    Console.WriteLine "Please resize the terminal to at least 100 columns x 30 rows."
+    Console.WriteLine()
+    Console.WriteLine $"Current size: {Console.WindowWidth} x {Console.WindowHeight}"
+    pause ()
 
   let private colorOfKind = function
     | Normal -> ConsoleColor.White
