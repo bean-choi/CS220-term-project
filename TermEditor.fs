@@ -15,38 +15,81 @@ module TermEditor =
     Console.WriteLine message
     ConsoleUi.pause ()
 
+  let private confirm (message: string) =
+    Console.Write $"{message} (y/n): "
+
+    let rec loop () =
+      match Console.ReadKey(true).Key with
+      | ConsoleKey.Y ->
+        Console.WriteLine "y"
+        true
+      | ConsoleKey.N ->
+        Console.WriteLine "n"
+        false
+      | _ -> loop ()
+
+    loop ()
+
   let private addTerm (terms: TermEntry list) =
     ConsoleUi.clear ()
+
     match readNonEmpty "New term: " with
-    | None -> wait "Empty term is not allowed."; terms
-    | Some term when not (isValidTerm term) -> wait "Only alphabets and hyphen are allowed."; terms
-    | Some term when terms |> List.exists (fun t -> t.Term = term) -> wait "The term already exists."; terms
+    | None ->
+      wait "Canceled. No changes were saved."
+      terms
     | Some term ->
       match readNonEmpty "Meaning: " with
-      | None -> wait "Empty meaning is not allowed."; terms
+      | None ->
+        wait "Canceled. No changes were saved."
+        terms
       | Some meaning ->
-        let updated = { Term = term; Meaning = meaning } :: terms
-        Storage.saveTerms updated
-        wait "Term added."
-        updated
+        if not (isValidTerm term) then
+          wait "Only alphabets and hyphen are allowed."
+          terms
+        elif terms |> List.exists (fun t -> t.Term = term) then
+          wait "The term already exists."
+          terms
+        elif confirm "Save this new term?" then
+          let updated = { Term = term; Meaning = meaning } :: terms
+          Storage.saveTerms updated
+          wait "Term added."
+          updated
+        else
+          wait "Canceled. No changes were saved."
+          terms
 
   let private editTerm (terms: TermEntry list) =
     ConsoleUi.clear ()
     Console.WriteLine "Current terms:"
-    terms |> List.sortBy (fun t -> t.Term) |> List.iter (fun t -> Console.WriteLine($"- {t.Term}"))
+
+    terms
+    |> List.sortBy (fun t -> t.Term)
+    |> List.iter (fun t -> Console.WriteLine($"- {t.Term}"))
+
     Console.WriteLine()
+
     match readNonEmpty "Term to edit: " with
-    | None -> wait "Empty term is not allowed."; terms
+    | None ->
+      wait "Canceled. No changes were saved."
+      terms
     | Some target ->
       match terms |> List.tryFind (fun t -> t.Term = target) with
-      | None -> wait "Term not found."; terms
+      | None ->
+        wait "Term not found."
+        terms
       | Some oldTerm ->
-        Console.Write($"New term (Enter to keep '{oldTerm.Term}'): ")
+        Console.Write $"New term (Enter to keep '{oldTerm.Term}'): "
         let newTermRaw = Console.ReadLine().Trim()
-        let newTerm = if newTermRaw = "" then oldTerm.Term else newTermRaw
+
         Console.Write "New meaning (Enter to keep old meaning): "
         let newMeaningRaw = Console.ReadLine().Trim()
-        let newMeaning = if newMeaningRaw = "" then oldTerm.Meaning else newMeaningRaw
+
+        let newTerm =
+          if newTermRaw = "" then oldTerm.Term else newTermRaw
+
+        let newMeaning =
+          if newMeaningRaw = "" then oldTerm.Meaning else newMeaningRaw
+
         if not (isValidTerm newTerm) then
           wait "Only alphabets and hyphen are allowed."
           terms
@@ -54,11 +97,29 @@ module TermEditor =
           wait "The new term already exists."
           terms
         else
-          let updated =
-            terms |> List.map (fun t -> if t.Term = oldTerm.Term then { Term = newTerm; Meaning = newMeaning } else t)
-          Storage.saveTerms updated
-          wait "Term edited."
-          updated
+          Console.WriteLine()
+          Console.WriteLine "Before:"
+          Console.WriteLine($"  Term: {oldTerm.Term}")
+          Console.WriteLine($"  Meaning: {oldTerm.Meaning}")
+          Console.WriteLine()
+          Console.WriteLine "After:"
+          Console.WriteLine($"  Term: {newTerm}")
+          Console.WriteLine($"  Meaning: {newMeaning}")
+          Console.WriteLine()
+
+          if confirm "Save these changes?" then
+            let updated =
+              terms
+              |> List.map (fun t ->
+                if t.Term = oldTerm.Term then
+                  { Term = newTerm; Meaning = newMeaning }
+                else t)
+            Storage.saveTerms updated
+            wait "Term edited."
+            updated
+          else
+            wait "Canceled. No changes were saved."
+            terms
 
   let private deleteTerm (terms: TermEntry list) =
     ConsoleUi.clear ()
