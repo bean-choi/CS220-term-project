@@ -192,6 +192,10 @@ module Game =
     
     let rng = Random()
     let started = DateTime.Now
+
+    let initialWidth = Console.WindowWidth
+    let initialHeight = Console.WindowHeight
+
     let mutable state =
       { Health = initialHealth
         Score = 0
@@ -204,41 +208,54 @@ module Game =
         NextId = 1 }
     let mutable input = ""
     let mutable quit = false
+    let mutable terminalResized = false
 
-    while state.Health > 0 && not quit do
+    while state.Health > 0 && not quit && not terminalResized do
       let width = Console.WindowWidth
-      let bottom = Console.WindowHeight - 3
+      let height = Console.WindowHeight
+      let bottom = height - 3
 
-      while Console.KeyAvailable do
-        let key = Console.ReadKey(true)
-        match key.Key with
-        | ConsoleKey.Escape -> quit <- true
-        | ConsoleKey.Enter ->
-          state <- handleSubmit rng terms input state
-          input <- ""
-        | ConsoleKey.Backspace ->
-          if input.Length > 0 then input <- input.Substring(0, input.Length - 1)
-        | _ ->
-          if not (Char.IsControl key.KeyChar) then input <- input + string key.KeyChar
+      if width <> initialWidth || height <> initialHeight then
+        terminalResized <- true
+      else
+        while Console.KeyAvailable do
+          let key = Console.ReadKey(true)
+          match key.Key with
+          | ConsoleKey.Escape -> quit <- true
+          | ConsoleKey.Enter ->
+            state <- handleSubmit rng terms input state
+            input <- ""
+          | ConsoleKey.Backspace ->
+            if input.Length > 0 then input <- input.Substring(0, input.Length - 1)
+          | _ ->
+            if not (Char.IsControl key.KeyChar) then input <- input + string key.KeyChar
 
-      let oldStage = state.Stage
-      let newStage = Stage.currentStage state.StartedAt
+        let oldStage = state.Stage
+        let newStage = Stage.currentStage state.StartedAt
 
-      state <- { state with Stage = newStage }
+        state <- { state with Stage = newStage }
 
-      if Stage.shouldSpawnClear oldStage newStage then
-        let clearTerm = spawnClear rng terms width state.NextId
-        state <-
-          { state with
-              FallingTerms = clearTerm :: state.FallingTerms
-              NextId = state.NextId + 1 }
+        if Stage.shouldSpawnClear oldStage newStage then
+          let clearTerm = spawnClear rng terms width state.NextId
+          state <-
+            { state with
+                FallingTerms = clearTerm :: state.FallingTerms
+                NextId = state.NextId + 1 }
 
-      state <- moveTerms bottom state
+        state <- moveTerms bottom state
 
-      if DateTime.Now >= state.NextSpawnAt then
-        state <- spawnTerms rng terms width state
+        if DateTime.Now >= state.NextSpawnAt then
+          state <- spawnTerms rng terms width state
 
-      ConsoleUi.drawGame state input
-      Thread.Sleep 40
+        ConsoleUi.drawGame state input
+        Thread.Sleep 40
+    
+    let rankings = Storage.loadRankings ()
 
-    if not quit then saveRankingIfNeeded state
+    if terminalResized || quit then
+      if Ranking.qualifies state.Score rankings then
+        saveRankingIfNeeded state
+      else
+        ()
+    else
+      saveRankingIfNeeded state
